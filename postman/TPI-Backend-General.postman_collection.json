@@ -1,0 +1,1011 @@
+{
+  "info": {
+    "name": "TPI Backend - General API",
+    "_postman_id": "tpi-backend-general-001",
+    "description": "Comprehensive collection with all endpoints across microservices: Solicitudes, Contenedores, Clientes, Gestión (Cálculos, Precios, Tarifas, Depósitos), Rutas (Transportistas, Camiones, Tramos, OSRM).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "keycloakUrl", "value": "http://localhost:8089" },
+    { "key": "client_id", "value": "postman-test" },
+    { "key": "client_secret", "value": "secret-postman-123" },
+    { "key": "access_token", "value": "" },
+    { "key": "solicitudId", "value": "" },
+    { "key": "contenedorId", "value": "" },
+    { "key": "clienteId", "value": "" },
+    { "key": "rutaId", "value": "" },
+    { "key": "opcionId", "value": "" },
+    { "key": "tramoId", "value": "" },
+    { "key": "tarifaId", "value": "" },
+    { "key": "depositoId", "value": "" },
+    { "key": "camionDominio", "value": "ABC123" },
+    { "key": "transportistaId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Get Token - cliente1 (CLIENTE)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/x-www-form-urlencoded" } ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "client_secret", "value": "{{client_secret}}" },
+                { "key": "username", "value": "cliente1" },
+                { "key": "password", "value": "1234" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloakUrl}}/realms/tpi-backend/protocol/openid-connect/token",
+              "host": [ "{{keycloakUrl}}" ],
+              "path": [ "realms", "tpi-backend", "protocol", "openid-connect", "token" ]
+            }
+          },
+          "event": [ { "listen": "test", "script": { "exec": [ "if (pm.response.code === 200) {", "  var token = pm.response.json().access_token;", "  pm.environment.set('access_token', token);", "  pm.collectionVariables.set('access_token', token);", "}" ], "type": "text/javascript" } } ]
+        },
+        {
+          "name": "Get Token - responsable1 (OPERADOR)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/x-www-form-urlencoded" } ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "client_secret", "value": "{{client_secret}}" },
+                { "key": "username", "value": "responsable1" },
+                { "key": "password", "value": "1234" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloakUrl}}/realms/tpi-backend/protocol/openid-connect/token",
+              "host": [ "{{keycloakUrl}}" ],
+              "path": [ "realms", "tpi-backend", "protocol", "openid-connect", "token" ]
+            }
+          },
+          "event": [ { "listen": "test", "script": { "exec": [ "if (pm.response.code === 200) {", "  var token = pm.response.json().access_token;", "  pm.environment.set('access_token', token);", "  pm.collectionVariables.set('access_token', token);", "}" ], "type": "text/javascript" } } ]
+        },
+        {
+          "name": "Get Token - admin (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "client_secret", "value": "{{client_secret}}" },
+                { "key": "username", "value": "tester" },
+                { "key": "password", "value": "1234" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloakUrl}}/realms/tpi-backend/protocol/openid-connect/token",
+              "host": [ "{{keycloakUrl}}" ],
+              "path": [ "realms", "tpi-backend", "protocol", "openid-connect", "token" ]
+            }
+          },
+          "event": [ { "listen": "test", "script": { "exec": [ "if (pm.response.code === 200) {", "  var token = pm.response.json().access_token;", "  pm.environment.set('access_token', token);", "  pm.collectionVariables.set('access_token', token);", "}" ], "type": "text/javascript" } } ]
+        },
+        {
+          "name": "Get Token - carlos.ramirez (TRANSPORTISTA)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/x-www-form-urlencoded" } ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "client_secret", "value": "{{client_secret}}" },
+                { "key": "username", "value": "carlos.ramirez" },
+                { "key": "password", "value": "1234" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloakUrl}}/realms/tpi-backend/protocol/openid-connect/token",
+              "host": [ "{{keycloakUrl}}" ],
+              "path": [ "realms", "tpi-backend", "protocol", "openid-connect", "token" ]
+            }
+          },
+          "event": [ { "listen": "test", "script": { "exec": [ "if (pm.response.code === 200) {", "  var token = pm.response.json().access_token;", "  pm.environment.set('access_token', token);", "  pm.collectionVariables.set('access_token', token);", "}" ], "type": "text/javascript" } } ]
+        },
+        {
+          "name": "Get Token - laura.fernandez (TRANSPORTISTA)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/x-www-form-urlencoded" } ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "client_secret", "value": "{{client_secret}}" },
+                { "key": "username", "value": "laura.fernandez" },
+                { "key": "password", "value": "1234" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloakUrl}}/realms/tpi-backend/protocol/openid-connect/token",
+              "host": [ "{{keycloakUrl}}" ],
+              "path": [ "realms", "tpi-backend", "protocol", "openid-connect", "token" ]
+            }
+          },
+          "event": [ { "listen": "test", "script": { "exec": [ "if (pm.response.code === 200) {", "  var token = pm.response.json().access_token;", "  pm.environment.set('access_token', token);", "  pm.collectionVariables.set('access_token', token);", "}" ], "type": "text/javascript" } } ]
+        },
+        {
+          "name": "Get Token - diego.martinez (TRANSPORTISTA)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/x-www-form-urlencoded" } ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "client_secret", "value": "{{client_secret}}" },
+                { "key": "username", "value": "diego.martinez" },
+                { "key": "password", "value": "1234" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloakUrl}}/realms/tpi-backend/protocol/openid-connect/token",
+              "host": [ "{{keycloakUrl}}" ],
+              "path": [ "realms", "tpi-backend", "protocol", "openid-connect", "token" ]
+            }
+          },
+          "event": [ { "listen": "test", "script": { "exec": [ "if (pm.response.code === 200) {", "  var token = pm.response.json().access_token;", "  pm.environment.set('access_token', token);", "  pm.collectionVariables.set('access_token', token);", "}" ], "type": "text/javascript" } } ]
+        }
+      ]
+    },
+    {
+      "name": "Usuarios (ADMIN)",
+      "item": [
+        {
+          "name": "Get All Usuarios",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "usuarios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Registro Usuario por Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Pedro Operador\",\n  \"email\": \"operador@example.com\",\n  \"telefono\": \"+54911555666\",\n  \"username\": \"operador1\",\n  \"password\": \"1234\",\n  \"rol\": \"OPERADOR\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/usuarios/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "usuarios",
+                "registro"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clientes",
+      "item": [
+        {
+          "name": "Registro Cliente (público)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Juan Pérez\",\n  \"email\": \"juan@example.com\",\n  \"telefono\": \"+54911123456\",\n  \"username\": \"juanperez\",\n  \"password\": \"1234\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/clientes/registro", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "clientes", "registro" ] }
+          }
+        },
+        {
+          "name": "List Clientes",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/clientes", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "clientes" ] }
+          }
+        },
+        {
+          "name": "Get Cliente by ID",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/clientes/{{clienteId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "clientes", "{{clienteId}}" ] }
+          }
+        },
+        {
+          "name": "Create Cliente",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": null,\n  \"nombre\": \"María González\",\n  \"email\": \"maria@example.com\",\n  \"telefono\": \"+54911987654\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/clientes", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "clientes" ] }
+          }
+        },
+        {
+          "name": "Update Cliente",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{clienteId}},\n  \"nombre\": \"Juan Pérez Actualizado\",\n  \"email\": \"juan.nuevo@example.com\",\n  \"telefono\": \"+54911123456\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/clientes/{{clienteId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "clientes", "{{clienteId}}" ] }
+          }
+        },
+        {
+          "name": "Delete Cliente",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/clientes/{{clienteId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "clientes", "{{clienteId}}" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contenedores",
+      "item": [
+        {
+          "name": "List Contenedores",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/contenedores", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "contenedores" ] }
+          }
+        },
+        {
+          "name": "Get Contenedor by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/contenedores/{{contenedorId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "contenedores",
+                "{{contenedorId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Contenedores by Cliente",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/contenedores/cliente/{{clienteId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "contenedores", "cliente", "{{clienteId}}" ] }
+          }
+        },
+        {
+          "name": "Create Contenedor",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": null,\n  \"peso\": 500.0,\n  \"volumen\": 5.0,\n  \"clienteId\": 10,\n  \"estado\": \"LIBRE\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/contenedores", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "contenedores" ] }
+          }
+        },
+        {
+          "name": "Update Contenedor",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{contenedorId}},\n  \"peso\": 600.0,\n  \"volumen\": 6.0,\n  \"clienteId\": 10,\n  \"estado\": \"LIBRE\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/contenedores/{{contenedorId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "contenedores", "{{contenedorId}}" ] }
+          }
+        },
+        {
+          "name": "Delete Contenedor",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/contenedores/{{contenedorId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "contenedores", "{{contenedorId}}" ] }
+          }
+        },
+        {
+          "name": "Update Estado Contenedor",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/contenedores/{{contenedorId}}?estadoNombre=EN_TRANSITO", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "contenedores", "{{contenedorId}}" ], "query": [ { "key": "estadoNombre", "value": "EN_TRANSITO" } ] }
+          }
+        },
+        {
+          "name": "Get Seguimiento Contenedor",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/contenedores/{{contenedorId}}/seguimiento", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "contenedores", "{{contenedorId}}", "seguimiento" ] }
+          }
+        },
+        {
+          "name": "Get Estados Permitidos",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/contenedores/{{contenedorId}}/estados-permitidos", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "contenedores", "{{contenedorId}}", "estados-permitidos" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Solicitudes",
+      "item": [
+        {
+          "name": "Create Solicitud (nuevo contenedor)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"direccionOrigen\": \"Av. Santa Fe 567, CABA\",\n  \"direccionDestino\": \"Av. Corrientes 123, CABA\",\n  \"clienteEmail\": \"cliente@example.com\",\n  \"clienteNombre\": \"Cliente Test\",\n  \"clienteTelefono\": \"+54911123456\",\n  \"contenedorPeso\": 500.0,\n  \"contenedorVolumen\": 5.0\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes" ] }
+          }
+        },
+        {
+          "name": "Create Solicitud (contenedor existente)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"direccionOrigen\": \"Av. Rivadavia 1000, CABA\",\n  \"direccionDestino\": \"Av. Belgrano 500, CABA\",\n  \"clienteEmail\": \"cliente@example.com\",\n  \"clienteNombre\": \"Cliente Test\",\n  \"clienteTelefono\": \"+54911123456\",\n  \"contenedorId\": {{contenedorId}}\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes" ] }
+          }
+        },
+        {
+          "name": "List Solicitudes",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes" ] }
+          }
+        },
+        {
+          "name": "Get Solicitud by ID",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes", "{{solicitudId}}" ] }
+          }
+        },
+        {
+          "name": "Update Solicitud",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"direccionOrigen\": \"Av. Santa Fe 999, CABA\",\n  \"direccionDestino\": \"Av. Rivadavia 456, CABA\",\n  \"clienteEmail\": \"cliente@example.com\",\n  \"clienteNombre\": \"Cliente Test\",\n  \"clienteTelefono\": \"+54911123456\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes", "{{solicitudId}}" ] }
+          }
+        },
+        {
+          "name": "Delete Solicitud",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes", "{{solicitudId}}" ] }
+          }
+        },
+        {
+          "name": "Asignar Contenedor",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}/asignar-contenedor?contenedorId={{contenedorId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes", "{{solicitudId}}", "asignar-contenedor" ], "query": [ { "key": "contenedorId", "value": "{{contenedorId}}" } ] }
+          }
+        },
+        {
+          "name": "Get Seguimiento",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}/seguimiento", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes", "{{solicitudId}}", "seguimiento" ] }
+          }
+        },
+        {
+          "name": "Get Seguimiento by Contenedor",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes/contenedor/{{contenedorId}}/seguimiento", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes", "contenedor", "{{contenedorId}}", "seguimiento" ] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var data = pm.response.json();",
+                  "  if (data.solicitudId) {",
+                  "    pm.collectionVariables.set('solicitudId', data.solicitudId);",
+                  "    console.log('solicitudId auto-capturado: ' + data.solicitudId);",
+                  "  }",
+                  "  if (data.rutaId) {",
+                  "    pm.collectionVariables.set('rutaId', data.rutaId);",
+                  "    console.log('rutaId auto-capturado: ' + data.rutaId);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Calcular Precio",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}/calcular-precio", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes", "{{solicitudId}}", "calcular-precio" ] }
+          }
+        },
+        {
+          "name": "Asignar Transporte",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}/asignar-transporte?transportistaId={{transportistaId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes", "{{solicitudId}}", "asignar-transporte" ], "query": [ { "key": "transportistaId", "value": "{{transportistaId}}" } ] }
+          }
+        },
+        {
+          "name": "Update Estado",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}/estado?estado=EN_PROCESO", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes", "{{solicitudId}}", "estado" ], "query": [ { "key": "estado", "value": "EN_PROCESO" } ] }
+          }
+        },
+        
+        {
+          "name": "Finalizar Solicitud",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}/finalizar?costoFinal=3786.40&tiempoReal=4.3", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes", "{{solicitudId}}", "finalizar" ], "query": [ { "key": "costoFinal", "value": "3786.40" }, { "key": "tiempoReal", "value": "4.3" } ] }
+          }
+        },
+        {
+          "name": "Set Ruta",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}/ruta?rutaId={{rutaId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes", "{{solicitudId}}", "ruta" ], "query": [ { "key": "rutaId", "value": "{{rutaId}}" } ] }
+          }
+        },
+        {
+          "name": "Confirmar Opcion",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}/opciones/{{opcionId}}/confirmar", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes", "{{solicitudId}}", "opciones", "{{opcionId}}", "confirmar" ] }
+          }
+        },
+        {
+          "name": "Get Estados Permitidos",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}/estados-permitidos", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes", "{{solicitudId}}", "estados-permitidos" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gestion - Calculos",
+      "item": [
+        {
+          "name": "Geocode",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/gestion/geocode?direccion=Av. Santa Fe 567, CABA", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "gestion", "geocode" ], "query": [ { "key": "direccion", "value": "Av. Santa Fe 567, CABA" } ] }
+          }
+        },
+        {
+          "name": "Calcular Distancia",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latOrigen\": -34.6037,\n  \"lonOrigen\": -58.3816,\n  \"latDestino\": -32.9468,\n  \"lonDestino\": -60.6393\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/gestion/distancia", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "gestion", "distancia" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gestion - Precios",
+      "item": [
+        {
+          "name": "Calcular Precio Estimado",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"peso\": 500.0,\n  \"volumen\": 10.0,\n  \"distancia\": 100.0\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/precio/estimado", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "precio", "estimado" ] }
+          }
+        },
+        {
+          "name": "Calcular Precio Traslado",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"peso\": 500.0,\n  \"volumen\": 10.0,\n  \"distancia\": 100.0\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/precio/traslado", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "precio", "traslado" ] }
+          }
+        },
+        {
+          "name": "Calcular Costo Solicitud",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/precio/solicitud/{{solicitudId}}/costo", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "precio", "solicitud", "{{solicitudId}}", "costo" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gestion - Tarifas",
+      "item": [
+        {
+          "name": "List Tarifas",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/tarifas", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "tarifas" ] }
+          }
+        },
+        {
+          "name": "Get Tarifa by ID",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/tarifas/{{tarifaId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "tarifas", "{{tarifaId}}" ] }
+          }
+        },
+        {
+          "name": "Create Tarifa",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Tarifa Estándar\",\n  \"costoBaseGestionFijo\": 1000.0,\n  \"valorLitroCombustible\": 150.0,\n  \"rangos\": []\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/tarifas", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "tarifas" ] }
+          }
+        },
+        {
+          "name": "Update Tarifa",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{tarifaId}},\n  \"nombre\": \"Tarifa Actualizada\",\n  \"costoBaseGestionFijo\": 1200.0,\n  \"valorLitroCombustible\": 160.0\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/tarifas/{{tarifaId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "tarifas", "{{tarifaId}}" ] }
+          }
+        },
+        {
+          "name": "Add Rango to Tarifa",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pesoMin\": 0.0,\n  \"pesoMax\": 500.0,\n  \"volumenMin\": 0.0,\n  \"volumenMax\": 10.0,\n  \"costoPorKmBase\": 200.0\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/tarifas/{{tarifaId}}/rango", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "tarifas", "{{tarifaId}}", "rango" ] }
+          }
+        },
+        {
+          "name": "Update Rango",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"pesoMin\": 0.0,\n  \"pesoMax\": 600.0,\n  \"volumenMin\": 0.0,\n  \"volumenMax\": 12.0,\n  \"costoPorKmBase\": 250.0\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/tarifas/{{tarifaId}}/rango/1", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "tarifas", "{{tarifaId}}", "rango", "1" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gestion - Depositos",
+      "item": [
+        {
+          "name": "List Depositos",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/depositos", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "depositos" ] }
+          }
+        },
+        {
+          "name": "Get Deposito by ID",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/depositos/{{depositoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "depositos", "{{depositoId}}" ] }
+          }
+        },
+        {
+          "name": "Create Deposito",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Deposito Norte\",\n  \"direccion\": \"Av. Gral. Paz 1234, CABA\",\n  \"latitud\": -34.6037,\n  \"longitud\": -58.3816,\n  \"nombreCiudad\": \"Buenos Aires\",\n  \"costoEstadiaDiario\": 500.0\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/depositos", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "depositos" ] }
+          }
+        },
+        {
+          "name": "Create Deposito (con geocodificación)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Deposito Sur\",\n  \"direccion\": \"Av. del Libertador 5000, CABA\",\n  \"latitud\": -34.5564,\n  \"longitud\": -58.4524,\n  \"costoEstadiaDiario\": 450.0\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/depositos", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "depositos" ] }
+          }
+        },
+        {
+          "name": "Update Deposito",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{depositoId}},\n  \"nombre\": \"Deposito Norte Actualizado\",\n  \"direccion\": \"Av. Gral. Paz 9999, CABA\",\n  \"latitud\": -34.6037,\n  \"longitud\": -58.3816,\n  \"nombreCiudad\": \"Capital Federal\",\n  \"costoEstadiaDiario\": 600.0\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/depositos/{{depositoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "depositos", "{{depositoId}}" ] }
+          }
+        },
+        {
+          "name": "Get Coordenadas",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/depositos/{{depositoId}}/coordenadas", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "depositos", "{{depositoId}}", "coordenadas" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rutas",
+      "item": [
+        {
+          "name": "Request Ruta For Solicitud",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idSolicitud\": {{solicitudId}}\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}/rutas", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "solicitudes", "{{solicitudId}}", "rutas" ] }
+          }
+        },
+        {
+          "name": "Create Opciones para Solicitud",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"calcularVariantes\": true\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/rutas/solicitudes/{{solicitudId}}/opciones", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "rutas", "solicitudes", "{{solicitudId}}", "opciones" ] }
+          }
+        },
+        {
+          "name": "List Opciones de Solicitud",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/rutas/solicitudes/{{solicitudId}}/opciones", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "rutas", "solicitudes", "{{solicitudId}}", "opciones" ] }
+          }
+        },
+        {
+          "name": "Confirmar Opcion de Solicitud",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/rutas/solicitudes/{{solicitudId}}/opciones/{{opcionId}}/confirmar", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "rutas", "solicitudes", "{{solicitudId}}", "opciones", "{{opcionId}}", "confirmar" ] }
+          }
+        },
+        {
+          "name": "Get Opciones de Ruta",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}/opciones", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "rutas", "{{rutaId}}", "opciones" ] }
+          }
+        },
+        {
+          "name": "Seleccionar Opcion de Ruta",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}/opciones/{{opcionId}}/seleccionar", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "rutas", "{{rutaId}}", "opciones", "{{opcionId}}", "seleccionar" ] }
+          }
+        },
+        {
+          "name": "List Rutas",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/rutas", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "rutas" ] }
+          }
+        },
+        {
+          "name": "Get Ruta by ID",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "rutas", "{{rutaId}}" ] }
+          }
+        },
+        {
+          "name": "Delete Ruta",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "rutas", "{{rutaId}}" ] }
+          }
+        },
+        {
+          "name": "Get Ruta by Solicitud",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/rutas/por-solicitud/{{solicitudId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "rutas", "por-solicitud", "{{solicitudId}}" ] }
+          }
+        },
+        {
+          "name": "Iniciar Tramo",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}/tramos/{{tramoId}}/iniciar?fechaHoraReal=2025-11-20T14:00:00", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "rutas", "{{rutaId}}", "tramos", "{{tramoId}}", "iniciar" ], "query": [ { "key": "fechaHoraReal", "value": "2025-11-20T14:00:00", "description": "Fecha y hora de inicio (opcional, usa fecha actual si no se especifica)" } ] }
+          }
+        },
+        {
+          "name": "Finalizar Tramo",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}/tramos/{{tramoId}}/finalizar?fechaHoraReal=2025-11-20T15:30:00", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "rutas", "{{rutaId}}", "tramos", "{{tramoId}}", "finalizar" ], "query": [ { "key": "fechaHoraReal", "value": "2025-11-20T15:30:00" } ] }
+          }
+        },
+        {
+          "name": "Calcular Distancias",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}/calcular-distancias", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "rutas", "{{rutaId}}", "calcular-distancias" ] }
+          }
+        },
+        {
+          "name": "Calcular Costos",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}/calcular-costos", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "rutas", "{{rutaId}}", "calcular-costos" ] }
+          }
+        },
+        {
+          "name": "Calcular Completo",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}/calcular-completo", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "rutas", "{{rutaId}}", "calcular-completo" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tramos",
+      "item": [
+        {
+          "name": "Create Tramo",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rutaId\": {{rutaId}},\n  \"origenDepositoId\": 1,\n  \"destinoDepositoId\": 2\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/tramos", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "tramos" ] }
+          }
+        },
+        {
+          "name": "List Tramos",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/tramos", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "tramos" ] }
+          }
+        },
+        {
+          "name": "List Tramos por Ruta",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/tramos/por-ruta/{{rutaId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "tramos", "por-ruta", "{{rutaId}}" ] }
+          }
+        },
+        {
+          "name": "Asignar Transportista",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/tramos/{{tramoId}}/asignar-transportista?camionId=1&dominio={{camionDominio}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "tramos", "{{tramoId}}", "asignar-transportista" ], "query": [ { "key": "camionId", "value": "1" }, { "key": "dominio", "value": "{{camionDominio}}" } ] }
+          }
+        },
+        {
+          "name": "Delete Tramo",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/tramos/{{tramoId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "tramos", "{{tramoId}}" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Camiones",
+      "item": [
+        {
+          "name": "List Camiones",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/camiones", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "camiones" ] }
+          }
+        },
+        {
+          "name": "Get Camion by Dominio",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/camiones/{{camionDominio}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "camiones", "{{camionDominio}}" ] }
+          }
+        },
+        {
+          "name": "Create Camion",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dominio\": \"ABC123\",\n  \"marca\": \"Mercedes\",\n  \"modelo\": \"Actros\",\n  \"capacidadPesoMax\": 10000.0,\n  \"capacidadVolumenMax\": 50.0,\n  \"costoBase\": 5000.0,\n  \"costoPorKm\": 100.0,\n  \"consumoCombustiblePromedio\": 25.0,\n  \"disponible\": true,\n  \"activo\": true\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/camiones", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "camiones" ] }
+          }
+        },
+        {
+          "name": "Update Estado Camion",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/camiones/{{camionDominio}}/estado?disponible=true&activo=true", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "camiones", "{{camionDominio}}", "estado" ], "query": [ { "key": "disponible", "value": "true" }, { "key": "activo", "value": "true" } ] }
+          }
+        },
+        {
+          "name": "Asignar Transportista",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/camiones/{{camionDominio}}/asignar?nombreTransportista=Juan Transportista", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "camiones", "{{camionDominio}}", "asignar" ], "query": [ { "key": "nombreTransportista", "value": "Juan Transportista" } ] }
+          }
+        },
+        {
+          "name": "Delete Camion",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/camiones/{{camionDominio}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "camiones", "{{camionDominio}}" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "OSRM",
+      "item": [
+        {
+          "name": "Get Distancia OSRM",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{access_token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/v1/osrm/distancia?latOrigen=-34.6037&lonOrigen=-58.3816&latDestino=-32.9468&lonDestino=-60.6393", "host": [ "{{baseUrl}}" ], "path": [ "api", "v1", "osrm", "distancia" ], "query": [ { "key": "latOrigen", "value": "-34.6037" }, { "key": "lonOrigen", "value": "-58.3816" }, { "key": "latDestino", "value": "-32.9468" }, { "key": "lonDestino", "value": "-60.6393" } ] }
+          }
+        }
+      ]
+    }
+  ]
+}

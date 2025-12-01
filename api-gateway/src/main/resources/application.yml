@@ -1,0 +1,30 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+        - id: ms-solicitudes
+          uri: http://ms-solicitudes:8083
+          predicates:
+            - Path=/api/v1/solicitudes/**, /api/v1/clientes/**, /api/v1/contenedores/**, /api/v1/usuarios/**
+        - id: ms-rutas-transportistas
+          uri: http://ms-rutas-transportistas:8082
+          predicates:
+            - Path=/api/v1/rutas/**, /api/v1/tramos/**, /api/v1/transportistas/**, /api/v1/camiones/**, /api/v1/depositos/**
+        - id: ms-gestion-calculos
+          uri: http://ms-gestion-calculos:8081
+          predicates:
+            - Path=/api/v1/precios/**, /api/v1/tarifas/**
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak:8080/realms/tpi-backend
+          jwk-set-uri: http://keycloak:8080/realms/tpi-backend/protocol/openid-connect/certs
+
+
+

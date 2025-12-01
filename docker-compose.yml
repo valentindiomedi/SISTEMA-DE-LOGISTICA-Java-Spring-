@@ -1,0 +1,161 @@
+services:
+
+  gateway:
+    build:
+      context: .
+      dockerfile: ./api-gateway/Dockerfile
+    container_name: gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - backend-net
+    depends_on:
+      - postgres
+      - keycloak
+      - ms-gestion-calculos
+      - ms-rutas-transportistas
+      - ms-solicitudes
+    environment:
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:8089/realms/tpi-backend
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/tpi-backend/protocol/openid-connect/certs
+      - SPRING_CLOUD_COMPATIBILITY_VERIFIER_ENABLED=false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  ms-solicitudes:
+    build:
+      context: .
+      dockerfile: ./ms-solicitudes/Dockerfile
+    container_name: ms-solicitudes
+    expose:
+      - "8083"
+    networks:
+      - backend-net
+    depends_on:
+      - postgres
+      - keycloak
+    volumes:
+      - ./logs/ms-solicitudes:/app/logs
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/tpi_backend_db?sslmode=prefer
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:8089/realms/tpi-backend
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/tpi-backend/protocol/openid-connect/certs
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=DEBUG
+      # base-urls for inter-service RestClient (mapped to app.* properties)
+      - APP_TRANSPORTES_BASE_URL=http://ms-rutas-transportistas:8082
+      - APP_CALCULOS_BASE_URL=http://ms-gestion-calculos:8081
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  ms-gestion-calculos:
+    build:
+      context: .
+      dockerfile: ./ms-gestion-calculos/Dockerfile
+    container_name: ms-gestion-calculos
+    expose:
+      - "8081"
+    networks:
+      - backend-net
+    depends_on:
+      - postgres
+      - osrm
+    volumes:
+      - ./logs/ms-gestion-calculos:/app/logs
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/tpi_backend_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:8089/realms/tpi-backend
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/tpi-backend/protocol/openid-connect/certs
+      - APP_RUTAS_BASE_URL=http://ms-rutas-transportistas:8082
+      - APP_SOLICITUDES_BASE_URL=http://ms-solicitudes:8083
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  ms-rutas-transportistas:
+    build:
+      context: .
+      dockerfile: ./ms-rutas-transportistas/Dockerfile
+    container_name: ms-rutas-transportistas
+    expose:
+      - "8082"
+    networks:
+      - backend-net
+    depends_on:
+      - postgres
+      - osrm
+    volumes:
+      - ./logs/ms-rutas-transportistas:/app/logs
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/tpi_backend_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - GOOGLE_MAPS_API_URL=${GOOGLE_MAPS_API_URL:-https://maps.googleapis.com/maps/api}
+      - GOOGLE_MAPS_APIKEY=${GOOGLE_MAPS_APIKEY:-}
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:8089/realms/tpi-backend
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/tpi-backend/protocol/openid-connect/certs
+      - APP_SOLICITUDES_BASE_URL=http://ms-solicitudes:8083
+      - APP_CALCULOS_BASE_URL=http://ms-gestion-calculos:8081
+      - APP_OSRM_BASE_URL=http://osrm:5000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  osrm:
+    image: osrm/osrm-backend:latest
+    container_name: osrm
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./osrm-data:/data
+    command: osrm-routed /data/argentina-251114.osrm
+    restart: unless-stopped
+    networks:
+      - backend-net
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.3
+    container_name: keycloak
+    command: ["start-dev", "--import-realm"]
+    ports:
+      - "8089:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin123
+      - KC_HOSTNAME=localhost
+      - KC_HTTP_ENABLED=true
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import
+      - keycloak_data:/opt/keycloak/data
+    networks:
+      - backend-net
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tpi_backend_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d
+    networks:
+      - backend-net
+
+networks:
+  backend-net:
+    driver: bridge
+
+volumes:
+  keycloak_data:
+  postgres_data:

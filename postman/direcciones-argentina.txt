@@ -1,0 +1,82 @@
+DIRECCIONES DE ARGENTINA PARA SOLICITUDES DE TRANSPORTE
+=========================================================
+
+Pares de direcciones Origen → Destino para crear solicitudes de transporte con rutas largas
+que generen múltiples opciones tentativas con varios depósitos intermedios.
+
+---------------------------------------------------------
+OPCIÓN 1: CABA → Rosario (300 km)
+---------------------------------------------------------
+Origen:  Av. Santa Fe 1234, CABA, Argentina
+Destino: Av. San Martín 500, Rosario, Santa Fe, Argentina
+
+---------------------------------------------------------
+OPCIÓN 2: CABA → Córdoba (700 km)
+---------------------------------------------------------
+Origen:  Av. Rivadavia 2000, CABA, Argentina
+Destino: Av. Colón 350, Córdoba, Argentina
+
+---------------------------------------------------------
+OPCIÓN 3: CABA → Mendoza (1000 km)
+---------------------------------------------------------
+Origen:  Av. Corrientes 3000, CABA, Argentina
+Destino: Av. San Martín 1234, Mendoza, Argentina
+
+---------------------------------------------------------
+OPCIÓN 4: Rosario → Córdoba (400 km)
+---------------------------------------------------------
+Origen:  Av. Pellegrini 1500, Rosario, Santa Fe, Argentina
+Destino: Av. Vélez Sársfield 200, Córdoba, Argentina
+
+---------------------------------------------------------
+OPCIÓN 5: CABA → Mar del Plata (400 km)
+---------------------------------------------------------
+Origen:  Av. 9 de Julio 1000, CABA, Argentina
+Destino: Av. Constitución 5678, Mar del Plata, Buenos Aires, Argentina
+
+---------------------------------------------------------
+OPCIÓN 6: Córdoba → Rosario (400 km)
+---------------------------------------------------------
+Origen:  Av. Hipólito Yrigoyen 500, Córdoba, Argentina
+Destino: Bv. Oroño 1200, Rosario, Santa Fe, Argentina
+
+---------------------------------------------------------
+OPCIÓN 7: CABA → Tucumán (1200 km)
+---------------------------------------------------------
+Origen:  Av. Belgrano 1500, CABA, Argentina
+Destino: Av. Mate de Luna 2000, San Miguel de Tucumán, Argentina
+
+---------------------------------------------------------
+OPCIÓN 8: CABA → Bahía Blanca (650 km)
+---------------------------------------------------------
+Origen:  Av. del Libertador 4000, CABA, Argentina
+Destino: Av. Alem 500, Bahía Blanca, Buenos Aires, Argentina
+
+---------------------------------------------------------
+OPCIÓN 9: CABA → Santa Fe (500 km)
+---------------------------------------------------------
+Origen:  Av. Pueyrredón 2000, CABA, Argentina
+Destino: Bv. Gálvez 1500, Santa Fe, Argentina
+
+---------------------------------------------------------
+OPCIÓN 10: CABA → Paraná (480 km)
+---------------------------------------------------------
+Origen:  Av. Cabildo 3000, CABA, Argentina
+Destino: Av. Alameda de la Federación 200, Paraná, Entre Ríos, Argentina
+
+=========================================================
+
+NOTAS:
+- Todas las distancias son aproximadas
+- Las rutas más largas generarán más opciones de depósitos intermedios
+- Formato para usar en el body del endpoint POST /api/v1/solicitudes:
+
+{
+  "direccionOrigen": "Av. Santa Fe 1234, CABA, Argentina",
+  "direccionDestino": "Av. San Martín 500, Rosario, Santa Fe, Argentina",
+  "clienteEmail": "juan.perez@example.com",
+  "clienteNombre": "Juan Pérez",
+  "clienteTelefono": "+54911123456",
+  "contenedorPeso": 500.0,
+  "contenedorVolumen": 5.0
+}

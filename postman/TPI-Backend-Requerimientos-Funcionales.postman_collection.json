@@ -1,0 +1,1879 @@
+{
+  "info": {
+    "name": "TPI Backend - Requerimientos Funcionales",
+    "_postman_id": "tpi-backend-rf-001",
+    "description": "Colección de Postman con los requerimientos funcionales mínimos del sistema:\n\n1. Registrar nueva solicitud de transporte (Cliente)\n2. Consultar estado del transporte (Cliente)\n3. Consultar rutas tentativas (Operador/Admin)\n4. Asignar ruta a solicitud (Operador/Admin)\n5. Consultar contenedores pendientes con filtros (Operador/Admin)\n6. Asignar camión a tramo validando capacidad (Operador/Admin)\n7. Determinar inicio/fin de tramo (Transportista)\n8. Calcular costo total incluyendo distancia, peso, volumen y estadía\n9. Registrar y actualizar depósitos, camiones y tarifas\n10. Validar capacidad máxima de camiones",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "keycloakUrl", "value": "http://localhost:8089" },
+    { "key": "client_id", "value": "postman-test" },
+    { "key": "client_secret", "value": "secret-postman-123" },
+    { "key": "access_token", "value": "" },
+    { "key": "solicitudId", "value": "" },
+    { "key": "contenedorId", "value": "" },
+    { "key": "clienteId", "value": "" },
+    { "key": "rutaId", "value": "" },
+    { "key": "opcionId", "value": "" },
+    { "key": "tramoId", "value": "" },
+    { "key": "camionDominio", "value": "" },
+    { "key": "depositoId", "value": "" },
+    { "key": "tarifaId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "0. Autenticación",
+      "description": "Endpoints para obtener tokens de acceso según el rol del usuario",
+      "item": [
+        {
+          "name": "Get Token - Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var token = pm.response.json().access_token;",
+                  "  pm.environment.set('access_token', token);",
+                  "  pm.collectionVariables.set('access_token', token);",
+                  "  console.log('✅ Token de CLIENTE obtenido correctamente');",
+                  "} else {",
+                  "  console.log('❌ Error al obtener token');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "client_secret", "value": "{{client_secret}}" },
+                { "key": "username", "value": "cliente1" },
+                { "key": "password", "value": "1234" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloakUrl}}/realms/tpi-backend/protocol/openid-connect/token",
+              "host": ["{{keycloakUrl}}"],
+              "path": ["realms", "tpi-backend", "protocol", "openid-connect", "token"]
+            },
+            "description": "Obtiene token de autenticación para un usuario con rol CLIENTE"
+          }
+        },
+        {
+          "name": "Get Token - Operador",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var token = pm.response.json().access_token;",
+                  "  pm.environment.set('access_token', token);",
+                  "  pm.collectionVariables.set('access_token', token);",
+                  "  console.log('✅ Token de OPERADOR obtenido correctamente');",
+                  "} else {",
+                  "  console.log('❌ Error al obtener token');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "client_secret", "value": "{{client_secret}}" },
+                { "key": "username", "value": "responsable1" },
+                { "key": "password", "value": "1234" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloakUrl}}/realms/tpi-backend/protocol/openid-connect/token",
+              "host": ["{{keycloakUrl}}"],
+              "path": ["realms", "tpi-backend", "protocol", "openid-connect", "token"]
+            },
+            "description": "Obtiene token de autenticación para un usuario con rol OPERADOR"
+          }
+        },
+        {
+          "name": "Get Token - Administrador",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var token = pm.response.json().access_token;",
+                  "  pm.environment.set('access_token', token);",
+                  "  pm.collectionVariables.set('access_token', token);",
+                  "  console.log('✅ Token de ADMIN obtenido correctamente');",
+                  "} else {",
+                  "  console.log('❌ Error al obtener token');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "client_secret", "value": "{{client_secret}}" },
+                { "key": "username", "value": "tester" },
+                { "key": "password", "value": "1234" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloakUrl}}/realms/tpi-backend/protocol/openid-connect/token",
+              "host": ["{{keycloakUrl}}"],
+              "path": ["realms", "tpi-backend", "protocol", "openid-connect", "token"]
+            },
+            "description": "Obtiene token de autenticación para un usuario con rol ADMIN"
+          }
+        },
+        {
+          "name": "Get Token - Transportista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var token = pm.response.json().access_token;",
+                  "  pm.environment.set('access_token', token);",
+                  "  pm.collectionVariables.set('access_token', token);",
+                  "  console.log('✅ Token de TRANSPORTISTA obtenido correctamente');",
+                  "} else {",
+                  "  console.log('❌ Error al obtener token');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "client_secret", "value": "{{client_secret}}" },
+                { "key": "username", "value": "carlos.ramirez" },
+                { "key": "password", "value": "1234" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloakUrl}}/realms/tpi-backend/protocol/openid-connect/token",
+              "host": ["{{keycloakUrl}}"],
+              "path": ["realms", "tpi-backend", "protocol", "openid-connect", "token"]
+            },
+            "description": "Obtiene token de autenticación para un usuario con rol TRANSPORTISTA"
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Registrar Solicitud (CLIENTE)",
+      "description": "RF1: Registrar una nueva solicitud de transporte de contenedor con creación automática del contenedor y registro del cliente si no existe",
+      "item": [
+        {
+          "name": "1.1 Registro de Cliente (si no existe)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "  var response = pm.response.json();",
+                  "  if (response.id) {",
+                  "    pm.collectionVariables.set('clienteId', response.id);",
+                  "    console.log('✅ Cliente registrado con ID: ' + response.id);",
+                  "  }",
+                  "} else if (pm.response.code === 400) {",
+                  "  console.log('ℹ️ El cliente ya existe, puede continuar con el flujo');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Juan Pérez\",\n  \"email\": \"juan.perez@example.com\",\n  \"telefono\": \"+54911123456\",\n  \"username\": \"juanperez\",\n  \"password\": \"1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/clientes/registro",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "clientes", "registro"]
+            },
+            "description": "⚠️ ENDPOINT PÚBLICO - No requiere autenticación. Permite que un cliente se registre en el sistema. Si el cliente ya existe, retorna error 400."
+          }
+        },
+        {
+          "name": "1.2 Crear Solicitud con Contenedor Nuevo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "  var response = pm.response.json();",
+                  "  if (response.id) {",
+                  "    pm.collectionVariables.set('solicitudId', response.id);",
+                  "    console.log('✅ Solicitud creada con ID: ' + response.id);",
+                  "  }",
+                  "  if (response.contenedorId) {",
+                  "    pm.collectionVariables.set('contenedorId', response.contenedorId);",
+                  "    console.log('✅ Contenedor creado con ID: ' + response.contenedorId);",
+                  "  }",
+                  "  if (response.estado) {",
+                  "    console.log('📋 Estado inicial: ' + response.estado);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"direccionOrigen\": \"Av. Santa Fe 1234, CABA, Argentina\",\n  \"direccionDestino\": \"Av. San Martín 500, Rosario, Santa Fe, Argentina\",\n  \"clienteEmail\": \"juan.perez@example.com\",\n  \"clienteNombre\": \"Juan Pérez\",\n  \"clienteTelefono\": \"+54911123456\",\n  \"contenedorPeso\": 500.0,\n  \"contenedorVolumen\": 5.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/solicitudes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "solicitudes"]
+            },
+            "description": "Crea una nueva solicitud de transporte con un contenedor nuevo. El sistema:\n- Crea automáticamente el contenedor con identificación única\n- Registra el cliente si no existe previamente (usando el email)\n- Establece el estado inicial de la solicitud (BORRADOR)"
+          }
+        },
+        {
+          "name": "1.3 Crear Solicitud con Contenedor Existente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "  var response = pm.response.json();",
+                  "  if (response.id) {",
+                  "    pm.collectionVariables.set('solicitudId', response.id);",
+                  "    console.log('✅ Solicitud creada con ID: ' + response.id);",
+                  "  }",
+                  "  if (response.estado) {",
+                  "    console.log('📋 Estado inicial: ' + response.estado);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"direccionOrigen\": \"Av. Rivadavia 2000, CABA, Argentina\",\n  \"direccionDestino\": \"Av. Colón 350, Córdoba, Argentina\",\n  \"clienteEmail\": \"juan.perez@example.com\",\n  \"clienteNombre\": \"Juan Pérez\",\n  \"clienteTelefono\": \"+54911123456\",\n  \"contenedorId\": {{contenedorId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/solicitudes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "solicitudes"]
+            },
+            "description": "Crea una solicitud usando un contenedor existente (reutilización). El contenedorId debe existir previamente."
+          }
+        },
+        {
+          "name": "1.4 Ver Estados Disponibles de Solicitud",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}/estados-permitidos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "solicitudes", "{{solicitudId}}", "estados-permitidos"]
+            },
+            "description": "Muestra los estados permitidos a los que puede transicionar la solicitud desde su estado actual.\n\nEstados del sistema:\n- BORRADOR: Estado inicial\n- PROGRAMADA: Ruta asignada\n- EN_TRANSITO: En proceso de entrega\n- ENTREGADA: Completada"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Consultar Estado Transporte (CLIENTE)",
+      "description": "RF2: Consultar el estado del transporte de un contenedor",
+      "item": [
+        {
+          "name": "2.1 Consultar Seguimiento de Solicitud",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}/seguimiento",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "solicitudes", "{{solicitudId}}", "seguimiento"]
+            },
+            "description": "Obtiene el seguimiento completo de una solicitud incluyendo:\n- **estadoSolicitud**: Estado de la solicitud (PENDIENTE, PROGRAMADA, EN_TRANSITO, FINALIZADA)\n- **rutaId**: ID de la ruta asignada\n- **origenLat/Long**: Coordenadas de origen\n- **destinoLat/Long**: Coordenadas de destino\n- **contenedorId**: ID del contenedor asignado (si existe)\n- **estadoContenedor**: Estado del contenedor (LIBRE, RESERVADO, EN_TRANSITO, ENTREGADO)\n- **ubicacionActualLat/Long**: Ubicación actual del contenedor\n- **depositoId**: Depósito actual del contenedor"
+          }
+        },
+        {
+          "name": "2.2 Consultar Estado del Contenedor",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/contenedores/{{contenedorId}}/seguimiento",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "contenedores", "{{contenedorId}}", "seguimiento"]
+            },
+            "description": "Obtiene información detallada del estado y ubicación del contenedor:\n- Estado actual (LIBRE, RESERVADO, EN_TRANSITO, ENTREGADO)\n- Ubicación actual\n- Historial de ubicaciones\n- Solicitud asociada"
+          }
+        },
+        {
+          "name": "2.2.1 Consultar Seguimiento por Contenedor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var data = pm.response.json();",
+                  "  if (data.solicitudId) {",
+                  "    pm.collectionVariables.set('solicitudId', data.solicitudId);",
+                  "    console.log('✅ solicitudId auto-capturado: ' + data.solicitudId);",
+                  "  }",
+                  "  if (data.rutaId) {",
+                  "    pm.collectionVariables.set('rutaId', data.rutaId);",
+                  "    console.log('✅ rutaId auto-capturado: ' + data.rutaId);",
+                  "  }",
+                  "  console.log('✅ Seguimiento completo del contenedor obtenido');",
+                  "} else {",
+                  "  console.log('❌ Error al obtener seguimiento del contenedor');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/solicitudes/contenedor/{{contenedorId}}/seguimiento",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "solicitudes", "contenedor", "{{contenedorId}}", "seguimiento"]
+            },
+            "description": "Obtiene el seguimiento completo de un contenedor buscando su última solicitud:\n- Datos de la solicitud asociada\n- Información completa del contenedor con su estado actual\n- Ruta asignada con todos los tramos\n- Ubicación actual del contenedor\n- Depósito actual (si aplica)\n\nEste endpoint es útil cuando solo se conoce el ID del contenedor y se necesita toda la información de seguimiento."
+          }
+        },
+        {
+          "name": "2.3 Ver Detalles de Solicitud",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "solicitudes", "{{solicitudId}}"]
+            },
+            "description": "Obtiene todos los detalles de una solicitud específica:\n- Datos básicos (origen, destino, cliente)\n- Estado actual\n- Contenedor asignado\n- Ruta y precio (si fueron calculados)\n- Fechas de creación y actualización"
+          }
+        },
+        {
+          "name": "2.4 Listar Mis Solicitudes (Cliente)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/solicitudes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "solicitudes"]
+            },
+            "description": "Lista todas las solicitudes del cliente autenticado. El sistema filtra automáticamente por el usuario logueado."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Consultar Rutas Tentativas (OPERADOR/ADMIN)",
+      "description": "RF3: Consultar rutas tentativas con todos los tramos sugeridos y el tiempo y costo estimados",
+      "item": [
+        {
+          "name": "3.0.1 Crear Depósito Norte",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "  var response = pm.response.json();",
+                  "  if (response.id) {",
+                  "    pm.collectionVariables.set('depositoId', response.id);",
+                  "    console.log('✅ Depósito Norte creado con ID: ' + response.id);",
+                  "    console.log('📍 Ubicación: ' + response.nombre);",
+                  "    console.log('🗺️ Coordenadas: ' + response.latitud + ', ' + response.longitud);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Depósito Norte CABA\",\n  \"direccion\": \"Av. General Paz 5000, CABA, Argentina\",\n  \"latitud\": -34.5500,\n  \"longitud\": -58.4800,\n  \"costoEstadiaDiario\": 80.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/depositos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "depositos"]
+            },
+            "description": "⚠️ PREREQUISITO OBLIGATORIO - Crear múltiples depósitos para generar rutas con varios tramos.\n\nCada TRAMO de una ruta tiene:\n- origenDepositoId: Depósito de origen del tramo\n- destinoDepositoId: Depósito de destino del tramo\n\nPor ejemplo, una ruta con 3 tramos podría ser:\n- Tramo 1: Depósito Norte → Depósito Centro\n- Tramo 2: Depósito Centro → Depósito Sur\n- Tramo 3: Depósito Sur → Destino Final\n\n⚠️ Necesitas crear AL MENOS 2-3 depósitos para que el sistema genere rutas con múltiples tramos.\n\nEste endpoint crea el Depósito Norte."
+          }
+        },
+        {
+          "name": "3.0.2 Crear Depósito Centro",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "  var response = pm.response.json();",
+                  "  if (response.id) {",
+                  "    console.log('✅ Depósito Centro creado con ID: ' + response.id);",
+                  "    console.log('📍 Ubicación: ' + response.nombre);",
+                  "    console.log('🗺️ Coordenadas: ' + response.latitud + ', ' + response.longitud);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Depósito Centro CABA\",\n  \"direccion\": \"Av. Córdoba 1234, CABA, Argentina\",\n  \"latitud\": -34.6037,\n  \"longitud\": -58.3816,\n  \"costoEstadiaDiario\": 100.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/depositos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "depositos"]
+            },
+            "description": "Crea el Depósito Centro. Este será usado como punto intermedio en las rutas.\n\nRecuerda: Cuantos más depósitos registres, más opciones de tramos tendrá el sistema para calcular rutas alternativas."
+          }
+        },
+        {
+          "name": "3.0.3 Crear Depósito Sur",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "  var response = pm.response.json();",
+                  "  if (response.id) {",
+                  "    console.log('✅ Depósito Sur creado con ID: ' + response.id);",
+                  "    console.log('📍 Ubicación: ' + response.nombre);",
+                  "    console.log('🗺️ Coordenadas: ' + response.latitud + ', ' + response.longitud);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Depósito Sur Avellaneda\",\n  \"direccion\": \"Av. Hipólito Yrigoyen 2000, Avellaneda, Argentina\",\n  \"latitud\": -34.6700,\n  \"longitud\": -58.3600,\n  \"costoEstadiaDiario\": 120.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/depositos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "depositos"]
+            },
+            "description": "Crea el Depósito Sur. Con 3 depósitos (Norte, Centro, Sur), el sistema podrá generar rutas con múltiples tramos y diferentes combinaciones."
+          }
+        },
+        {
+          "name": "3.1 Generar Opciones de Rutas para Solicitud",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "  var response = pm.response.json();",
+                  "  if (Array.isArray(response) && response.length > 0) {",
+                  "    var primeraOpcion = response[0];",
+                  "    if (primeraOpcion.id) {",
+                  "      pm.collectionVariables.set('opcionId', primeraOpcion.id);",
+                  "      console.log('✅ Primera opción ID: ' + primeraOpcion.id);",
+                  "    }",
+                  "    console.log('📊 Total de opciones generadas: ' + response.length);",
+                  "    response.forEach((opcion, index) => {",
+                  "      console.log('Opción ' + (index + 1) + ':');",
+                  "      console.log('  - Distancia: ' + opcion.distanciaTotal + ' km');",
+                  "      console.log('  - Tiempo: ' + opcion.tiempoEstimado + ' min');",
+                  "      console.log('  - Costo: $' + opcion.costoTotal);",
+                  "      console.log('  - Tramos: ' + opcion.tramos.length);",
+                  "    });",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rutas/solicitudes/{{solicitudId}}/opciones",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "rutas", "solicitudes", "{{solicitudId}}", "opciones"]
+            },
+            "description": "⚠️ IMPORTANTE: Antes de ejecutar, crea AL MENOS 2-3 depósitos usando los endpoints 3.0.x\n\n🔄 **Cómo funciona:**\nCada TRAMO de una ruta conecta dos depósitos:\n- Tramo 1: origen_deposito_id → destino_deposito_id\n- Tramo 2: origen_deposito_id → destino_deposito_id\n- ...\n\nEl sistema:\n1. Obtiene las coordenadas de origen/destino de la solicitud\n2. Busca los depósitos más cercanos al origen y destino\n3. Calcula rutas con múltiples tramos pasando por depósitos intermedios\n4. Cada tramo tiene: distancia, tiempo estimado, costo, transportista y camión\n5. Genera múltiples opciones de rutas alternativas\n\n📊 **Ejemplo con 3 depósitos:**\nSi tienes Depósito Norte, Centro y Sur:\n- Ruta 1: Origen → Dep. Norte → Dep. Centro → Dep. Sur → Destino (4 tramos)\n- Ruta 2: Origen → Dep. Centro → Dep. Sur → Destino (3 tramos)\n- Ruta 3: Origen → Dep. Norte → Dep. Sur → Destino (3 tramos)\n\n⚠️ Sin depósitos → Error 500"
+          }
+        },
+        {
+          "name": "3.2 Consultar Opciones de Rutas Generadas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rutas/solicitudes/{{solicitudId}}/opciones",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "rutas", "solicitudes", "{{solicitudId}}", "opciones"]
+            },
+            "description": "Consulta las opciones de rutas previamente generadas para una solicitud.\n\nCada opción incluye:\n- Lista de tramos con origen y destino\n- Transportista y camión asignado a cada tramo\n- Distancia de cada tramo y total\n- Tiempo estimado por tramo y total\n- Costo por tramo y total\n- Estado de cada tramo"
+          }
+        },
+        {
+          "name": "3.3 Ver Detalle de una Ruta",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "rutas", "{{rutaId}}"]
+            },
+            "description": "Obtiene los detalles completos de una ruta específica incluyendo:\n- Solicitud asociada\n- Lista completa de tramos\n- Información de transportistas y camiones\n- Cálculos de distancia, tiempo y costo\n- Estado de la ruta"
+          }
+        },
+        {
+          "name": "3.4 Listar Todas las Rutas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rutas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "rutas"]
+            },
+            "description": "Lista todas las rutas del sistema con información básica."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Asignar Ruta a Solicitud (OPERADOR/ADMIN)",
+      "description": "RF4: Asignar una ruta con todos sus tramos a la solicitud",
+      "item": [
+        {
+          "name": "4.1 Confirmar Opción de Ruta (Desde Solicitud)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var response = pm.response.json();",
+                  "  if (response.id) {",
+                  "    pm.collectionVariables.set('rutaId', response.id);",
+                  "    console.log('✅ Ruta confirmada con ID: ' + response.id);",
+                  "  }",
+                  "  if (response.tramos && response.tramos.length > 0) {",
+                  "    var primerTramo = response.tramos[0];",
+                  "    if (primerTramo.id) {",
+                  "      pm.collectionVariables.set('tramoId', primerTramo.id);",
+                  "      console.log('✅ Primer tramo ID guardado: ' + primerTramo.id);",
+                  "    }",
+                  "  }",
+                  "  console.log('✅ Ruta asignada exitosamente a la solicitud');",
+                  "  console.log('📊 Total de tramos: ' + (response.tramos ? response.tramos.length : 0));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rutas/opciones/{{opcionId}}/confirmar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "rutas", "opciones", "{{opcionId}}", "confirmar"]
+            },
+            "description": "Confirma una opción de ruta. Este endpoint:\n- Crea la ruta definitiva con todos sus tramos\n- Asigna la ruta completa a la solicitud\n- Actualiza el estado de la solicitud a PROGRAMADA\n- Reserva los recursos (transportistas, camiones)\n- Calcula y asigna el precio final\n- Elimina las demás opciones tentativas\n\n⚠️ IMPORTANTE: Solo necesitas el opcionId. El endpoint obtiene automáticamente el solicitudId de la opción.\n\nLa solicitud pasa de BORRADOR a PROGRAMADA automáticamente."
+          }
+        },
+        {
+          "name": "4.2 Seleccionar Opción de Ruta (Desde Ruta)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var response = pm.response.json();",
+                  "  console.log('✅ Opción de ruta seleccionada exitosamente');",
+                  "  if (response.estado) {",
+                  "    console.log('📋 Estado de ruta: ' + response.estado);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}/opciones/{{opcionId}}/seleccionar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "rutas", "{{rutaId}}", "opciones", "{{opcionId}}", "seleccionar"]
+            },
+            "description": "Selecciona una opción específica de ruta. Similar al endpoint anterior pero desde la perspectiva de la ruta."
+          }
+        },
+        {
+          "name": "4.3 Asignar Ruta a Solicitud (Directo)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}/ruta?rutaId={{rutaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "solicitudes", "{{solicitudId}}", "ruta"],
+              "query": [
+                {
+                  "key": "rutaId",
+                  "value": "{{rutaId}}"
+                }
+              ]
+            },
+            "description": "Asigna directamente una ruta existente a una solicitud sin pasar por el flujo de opciones."
+          }
+        },
+        {
+          "name": "4.4 Ver Ruta Asignada a Solicitud",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rutas/por-solicitud/{{solicitudId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "rutas", "por-solicitud", "{{solicitudId}}"]
+            },
+            "description": "Consulta la ruta asignada a una solicitud específica con todos sus detalles:\n- Tramos completos\n- Transportistas y camiones asignados\n- Distancias, tiempos y costos\n- Estado de cada tramo"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Consultar Contenedores Pendientes (OPERADOR/ADMIN)",
+      "description": "RF5: Consultar todos los contenedores pendientes de entrega y su ubicación/estado con filtros",
+      "item": [
+        {
+          "name": "5.1 Listar Todos los Contenedores",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/contenedores",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "contenedores"]
+            },
+            "description": "Lista todos los contenedores del sistema. Retorna información básica de cada contenedor."
+          }
+        },
+        {
+          "name": "5.2 Filtrar Contenedores por Estado EN_TRANSITO",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/contenedores?estado=EN_TRANSITO",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "contenedores"],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "EN_TRANSITO",
+                  "description": "Filtra por estado EN_TRANSITO (pendientes de entrega)"
+                }
+              ]
+            },
+            "description": "Filtra contenedores que están EN_TRANSITO, es decir, pendientes de entrega.\n\nEstados disponibles:\n- LIBRE: Disponible para asignar\n- OCUPADO: Asignado a una solicitud\n- EN_TRANSITO: En proceso de entrega\n- EN_DEPOSITO: En depósito intermedio\n- ENTREGADO: Ya entregado"
+          }
+        },
+        {
+          "name": "5.3 Filtrar Contenedores por Estado OCUPADO",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/contenedores?estado=OCUPADO",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "contenedores"],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "OCUPADO",
+                  "description": "Filtra por estado OCUPADO (asignados pero no en tránsito)"
+                }
+              ]
+            },
+            "description": "Filtra contenedores OCUPADOS, es decir, asignados a solicitudes pero aún no en tránsito."
+          }
+        },
+        {
+          "name": "5.4 Consultar Solicitudes con Filtros",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/solicitudes?estado=PROGRAMADA",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "solicitudes"],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "PROGRAMADA",
+                  "description": "Filtra solicitudes PROGRAMADAS (pendientes de inicio)"
+                }
+              ]
+            },
+            "description": "Lista solicitudes con filtros. Útil para ver solicitudes pendientes.\n\nEstados de solicitud:\n- PENDIENTE: Creada pero sin ruta\n- PROGRAMADA: Con ruta asignada\n- EN_TRANSITO: En proceso\n- COMPLETADA: Completada"
+          }
+        },
+        {
+          "name": "5.5 Consultar Solicitudes EN_TRANSITO",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/solicitudes?estado=EN_TRANSITO",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "solicitudes"],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "EN_TRANSITO",
+                  "description": "Filtra solicitudes en tránsito"
+                }
+              ]
+            },
+            "description": "Filtra solicitudes que están actualmente EN_TRANSITO, mostrando los contenedores que están siendo transportados."
+          }
+        },
+        {
+          "name": "5.6 Ver Detalle y Ubicación de Contenedor",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/contenedores/{{contenedorId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "contenedores", "{{contenedorId}}"]
+            },
+            "description": "Obtiene detalles completos de un contenedor específico:\n- Estado actual\n- Ubicación\n- Cliente propietario\n- Solicitud asociada (si existe)\n- Peso y volumen"
+          }
+        },
+        {
+          "name": "5.7 Seguimiento Detallado de Contenedor",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/contenedores/{{contenedorId}}/seguimiento",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "contenedores", "{{contenedorId}}", "seguimiento"]
+            },
+            "description": "Obtiene seguimiento detallado del contenedor:\n- Ubicación actual precisa\n- Historial de ubicaciones\n- Estado actual y cambios de estado\n- Solicitud y ruta asociada\n- Estimación de tiempo de entrega"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Gestión de Estados (OPERADOR/ADMIN)",
+      "description": "Endpoints complementarios para gestionar el ciclo de vida de las solicitudes y contenedores",
+      "item": [
+        {
+          "name": "6.1 Cambiar Estado de Solicitud",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nuevoEstado\": \"EN_TRANSITO\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "solicitudes", "{{solicitudId}}", "estado"]
+            },
+            "description": "Cambia el estado de una solicitud. Estados válidos:\n- BORRADOR → PROGRAMADA (al asignar ruta)\n- PROGRAMADA → EN_TRANSITO (al iniciar transporte)\n- EN_TRANSITO → ENTREGADA (al completar)"
+          }
+        },
+        {
+          "name": "6.2 Iniciar Tramo de Ruta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}/tramos/{{tramoId}}/iniciar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "rutas", "{{rutaId}}", "tramos", "{{tramoId}}", "iniciar"]
+            },
+            "description": "Inicia un tramo específico de una ruta. Actualiza:\n- Estado del tramo a EN_PROCESO\n- Estado de la solicitud a EN_TRANSITO (si es el primer tramo)\n- Estado del contenedor a EN_TRANSITO\n- Registra fecha/hora de inicio"
+          }
+        },
+        {
+          "name": "6.3 Finalizar Tramo de Ruta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}/tramos/{{tramoId}}/finalizar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "rutas", "{{rutaId}}", "tramos", "{{tramoId}}", "finalizar"]
+            },
+            "description": "Finaliza un tramo de ruta. Actualiza:\n- Estado del tramo a COMPLETADO\n- Ubicación del contenedor\n- Si es el último tramo, marca solicitud como ENTREGADA\n- Registra fecha/hora de finalización"
+          }
+        },
+        {
+          "name": "6.4 Finalizar Solicitud Completa",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}/finalizar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "solicitudes", "{{solicitudId}}", "finalizar"]
+            },
+            "description": "Marca una solicitud como finalizada/entregada. Actualiza:\n- Estado de solicitud a ENTREGADA\n- Estado de contenedor a ENTREGADO\n- Fecha de finalización\n- Libera recursos asignados"
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Asignar Camión a Tramo (OPERADOR/ADMIN)",
+      "description": "RF6: Asignar camión a un tramo de traslado validando capacidad máxima",
+      "item": [
+        {
+          "name": "7.1 Listar Camiones Disponibles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/camiones",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "camiones"]
+            },
+            "description": "Lista todos los camiones del sistema con su información:\n- Dominio/Patente\n- Transportista asignado\n- Capacidad máxima (peso y volumen)\n- Estado de disponibilidad\n- Costos operativos"
+          }
+        },
+        {
+          "name": "7.2 Ver Detalle de Camión",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var response = pm.response.json();",
+                  "  console.log('🚛 Camión: ' + response.dominio);",
+                  "  console.log('📦 Capacidad Peso: ' + response.capacidadPeso + ' kg');",
+                  "  console.log('📦 Capacidad Volumen: ' + response.capacidadVolumen + ' m³');",
+                  "  console.log('👤 Transportista: ' + response.nombreTransportista);",
+                  "  console.log('✅ Disponible: ' + response.disponible);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/camiones/{{camionDominio}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "camiones", "{{camionDominio}}"]
+            },
+            "description": "Obtiene detalles completos de un camión específico por su dominio/patente."
+          }
+        },
+        {
+          "name": "7.3 Asignar Camión a Tramo (con validación)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var response = pm.response.json();",
+                  "  if (response.camionDominio) {",
+                  "    pm.collectionVariables.set('camionDominio', response.camionDominio);",
+                  "    console.log('✅ Camión asignado: ' + response.camionDominio);",
+                  "  }",
+                  "  if (response.id) {",
+                  "    pm.collectionVariables.set('tramoId', response.id);",
+                  "    console.log('✅ Tramo ID: ' + response.id);",
+                  "  }",
+                  "} else if (pm.response.code === 400) {",
+                  "  console.log('❌ Error de validación de capacidad');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tramos/{{tramoId}}/asignar-transportista?dominio={{camionDominio}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tramos", "{{tramoId}}", "asignar-transportista"],
+              "query": [
+                {
+                  "key": "dominio",
+                  "value": "{{camionDominio}}",
+                  "description": "Dominio/patente del camión a asignar"
+                }
+              ]
+            },
+            "description": "Asigna un camión a un tramo específico. El sistema valida automáticamente:\n\n✅ **Validación de Capacidad:**\n- Peso del contenedor ≤ Capacidad máxima del camión\n- Volumen del contenedor ≤ Capacidad máxima del camión\n\nSi la validación falla, retorna error 400 con mensaje descriptivo.\nSi es exitoso, actualiza el tramo con el camión y transportista asignado."
+          }
+        },
+        {
+          "name": "7.4 Registrar Nuevo Camión",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dominio\": \"ABC123\",\n  \"marca\": \"Mercedes\",\n  \"modelo\": \"Actros\",\n  \"capacidadPesoMax\": 15000.0,\n  \"capacidadVolumenMax\": 40.0,\n  \"costoBase\": 5000.0,\n  \"costoPorKm\": 50.0,\n  \"consumoCombustiblePromedio\": 0.35,\n  \"nombreTransportista\": \"Carlos Ramirez\",\n  \"disponible\": true,\n  \"activo\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/camiones",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "camiones"]
+            },
+            "description": "Registra un nuevo camión en el sistema con:\n- Dominio/patente única\n- Capacidad máxima de peso (kg)\n- Capacidad máxima de volumen (m³)\n- Transportista asignado\n- Costo por kilómetro\n- Estado de disponibilidad"
+          }
+        },
+        {
+          "name": "7.5 Asignar Transportista a Camión",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/camiones/{{camionDominio}}/asignar?nombreTransportista=Carlos Ramirez",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "camiones", "{{camionDominio}}", "asignar"],
+              "query": [
+                {
+                  "key": "nombreTransportista",
+                  "value": "Carlos Ramirez"
+                }
+              ]
+            },
+            "description": "Asigna o reasigna un transportista a un camión existente."
+          }
+        },
+        {
+          "name": "7.6 Actualizar Estado de Camión",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/camiones/{{camionDominio}}/estado?disponible=true&activo=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "camiones", "{{camionDominio}}", "estado"],
+              "query": [
+                {
+                  "key": "disponible",
+                  "value": "true",
+                  "description": "Si el camión está disponible para asignación"
+                },
+                {
+                  "key": "activo",
+                  "value": "true",
+                  "description": "Si el camión está activo en el sistema"
+                }
+              ]
+            },
+            "description": "Actualiza el estado operativo de un camión:\n- disponible: true/false (para nuevas asignaciones)\n- activo: true/false (si está operativo)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Gestión de Tramos (TRANSPORTISTA)",
+      "description": "RF7: Determinar inicio o fin de un tramo de traslado",
+      "item": [
+        {
+          "name": "8.1 Listar Tramos de una Ruta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var response = pm.response.json();",
+                  "  if (Array.isArray(response) && response.length > 0) {",
+                  "    var primerTramo = response[0];",
+                  "    if (primerTramo.id) {",
+                  "      pm.collectionVariables.set('tramoId', primerTramo.id);",
+                  "      console.log('✅ Primer tramo ID: ' + primerTramo.id);",
+                  "    }",
+                  "    console.log('📊 Total de tramos: ' + response.length);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tramos/por-ruta/{{rutaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tramos", "por-ruta", "{{rutaId}}"]
+            },
+            "description": "Lista todos los tramos de una ruta específica con:\n- Origen y destino\n- Camión y transportista asignado\n- Estado del tramo\n- Distancia y tiempos\n- Fechas de inicio y fin"
+          }
+        },
+        {
+          "name": "8.2 Iniciar Tramo (TRANSPORTISTA)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}/tramos/{{tramoId}}/iniciar?fechaHoraReal=2025-11-20T14:00:00",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "rutas", "{{rutaId}}", "tramos", "{{tramoId}}", "iniciar"],
+              "query": [
+                {
+                  "key": "fechaHoraReal",
+                  "value": "2025-11-20T14:00:00",
+                  "description": "Fecha y hora de inicio (opcional). Formato ISO-8601: YYYY-MM-DDTHH:mm:ss. Si se omite, usa la fecha/hora actual."
+                }
+              ]
+            },
+            "description": "**Rol: TRANSPORTISTA, OPERADOR o ADMIN**\n\nInicia un tramo de traslado. El sistema registra:\n- ✅ Fecha y hora de inicio real\n- ✅ Estado del tramo → EN_PROCESO\n- ✅ Estado del contenedor → EN_TRANSITO\n- ✅ Si es el primer tramo: Estado de solicitud → EN_TRANSITO\n\n**Parámetro opcional fechaHoraReal:**\nPermite especificar una fecha/hora personalizada para el inicio (útil para simular o registrar eventos pasados). Si se omite, se usa la fecha/hora actual del sistema.\n\nFormato: ISO-8601 (YYYY-MM-DDTHH:mm:ss)\nEjemplo: 2025-11-20T14:00:00"
+          }
+        },
+        {
+          "name": "8.3 Finalizar Tramo (TRANSPORTISTA)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}/tramos/{{tramoId}}/finalizar?fechaHoraReal=2025-11-20T15:30:00",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "rutas", "{{rutaId}}", "tramos", "{{tramoId}}", "finalizar"],
+              "query": [
+                {
+                  "key": "fechaHoraReal",
+                  "value": "2025-11-20T15:30:00",
+                  "description": "Fecha y hora de finalización (opcional). Formato ISO-8601: YYYY-MM-DDTHH:mm:ss. Si se omite, usa la fecha/hora actual."
+                }
+              ]
+            },
+            "description": "**Rol: TRANSPORTISTA, OPERADOR o ADMIN**\n\nFinaliza un tramo de traslado. El sistema registra:\n- ✅ Fecha y hora de finalización real\n- ✅ Estado del tramo → COMPLETADO\n- ✅ Actualiza ubicación del contenedor\n- ✅ Si es el último tramo: Estado de solicitud → ENTREGADA\n- ✅ Calcula tiempo real del tramo\n- ✅ Calcula estadía en depósito (si corresponde)\n\n**Parámetro opcional fechaHoraReal:**\nPermite especificar una fecha/hora personalizada para la finalización (útil para simular o registrar eventos pasados). Si se omite, se usa la fecha/hora actual del sistema.\n\nFormato: ISO-8601 (YYYY-MM-DDTHH:mm:ss)\nEjemplo: 2025-11-20T15:30:00\n\n**Cálculo de estadía:**\nSi el tramo finaliza en un depósito intermedio, el sistema calculará automáticamente el costo de estadía usando la diferencia entre esta fecha y la fecha de inicio del siguiente tramo."
+          }
+        },
+        {
+          "name": "8.4 Actualizar Fecha de Llegada",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tramos/{{tramoId}}/fecha-llegada?fechaHoraReal=2025-11-23T15:30:00",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tramos", "{{tramoId}}", "fecha-llegada"],
+              "query": [
+                {
+                  "key": "fechaHoraReal",
+                  "value": "2025-11-23T15:30:00",
+                  "description": "Fecha y hora real de llegada en formato ISO-8601"
+                }
+              ]
+            },
+            "description": "Actualiza la fecha de llegada real de un tramo.\n\nFormato: ISO-8601 (YYYY-MM-DDTHH:mm:ss)\nEjemplo: 2025-11-23T15:30:00"
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Cálculo de Costos (OPERADOR/ADMIN)",
+      "description": "RF8: Calcular costo total de entrega incluyendo distancia, peso, volumen y estadía",
+      "item": [
+        {
+          "name": "9.1 Calcular Precio Estimado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"direccionOrigen\": \"Av. Santa Fe 1234, CABA, Argentina\",\n  \"direccionDestino\": \"Av. Corrientes 5678, CABA, Argentina\",\n  \"peso\": 500.0,\n  \"volumen\": 5.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/precio/estimado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "precio", "estimado"]
+            },
+            "description": "Calcula el precio estimado para un traslado basado en:\n\n**Factores de cálculo:**\n- 📏 Distancia total (origen → depósitos → destino)\n- ⚖️ Peso del contenedor\n- 📦 Volumen del contenedor\n- 💰 Tarifas configuradas por rango\n\n**No incluye:**\n- Estadía en depósitos (se calcula en costo real)\n- Tiempos reales de traslado"
+          }
+        },
+        {
+          "name": "9.2 Calcular Costo para Solicitud",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var response = pm.response.json();",
+                  "  console.log('💰 Costo Total: $' + response.costoTotal);",
+                  "  console.log('📏 Distancia Total: ' + response.distanciaTotal + ' km');",
+                  "  console.log('⏱️ Tiempo Estimado: ' + response.tiempoEstimado + ' min');",
+                  "  if (response.detalles) {",
+                  "    console.log('📊 Detalles del cálculo:');",
+                  "    console.log(JSON.stringify(response.detalles, null, 2));",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/precio/solicitud/{{solicitudId}}/costo",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "precio", "solicitud", "{{solicitudId}}", "costo"]
+            },
+            "description": "Calcula el costo completo para una solicitud específica.\n\nObtiene automáticamente:\n- Datos de origen y destino\n- Peso y volumen del contenedor\n- Ruta asignada con depósitos intermedios\n\nCalcula:\n- Costo por distancia\n- Costo por peso y volumen\n- Tiempo estimado total"
+          }
+        },
+        {
+          "name": "9.3 Calcular Distancias de Ruta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}/calcular-distancias",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "rutas", "{{rutaId}}", "calcular-distancias"]
+            },
+            "description": "Calcula las distancias reales de todos los tramos de una ruta usando OSRM.\n\n**Calcula:**\n- Distancia de cada tramo (km)\n- Distancia total de la ruta\n- Tiempo estimado por tramo\n- Tiempo total estimado\n\n**Actualiza:**\n- Campos de distancia en cada tramo\n- Distancia total en la ruta"
+          }
+        },
+        {
+          "name": "9.4 Calcular Costos de Ruta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}/calcular-costos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "rutas", "{{rutaId}}", "calcular-costos"]
+            },
+            "description": "Calcula los costos de todos los tramos de una ruta.\n\n**Calcula:**\n- Costo por distancia (según tarifa/km)\n- Costo por peso y volumen\n- Costo por camión utilizado\n- Costo total por tramo\n- Costo total de la ruta\n\n**Actualiza:**\n- Campos de costo en cada tramo\n- Costo total en la ruta"
+          }
+        },
+        {
+          "name": "9.5 Calcular Todo (Distancias + Costos)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var response = pm.response.json();",
+                  "  console.log('✅ Cálculo completo realizado');",
+                  "  console.log('💰 Costo Total: $' + response.costoTotal);",
+                  "  console.log('📏 Distancia Total: ' + response.distanciaTotal + ' km');",
+                  "  console.log('⏱️ Tiempo Total: ' + response.tiempoTotal + ' min');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rutas/{{rutaId}}/calcular-completo",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "rutas", "{{rutaId}}", "calcular-completo"]
+            },
+            "description": "Ejecuta el cálculo completo de una ruta:\n\n1. Calcula distancias con OSRM\n2. Calcula costos basados en tarifas\n3. Calcula tiempos estimados\n4. Actualiza la ruta con todos los datos\n\n**Ideal para:**\n- Después de confirmar una ruta\n- Antes de mostrar presupuesto al cliente\n- Para recalcular después de cambios"
+          }
+        },
+        {
+          "name": "9.6 Registrar Cálculo Final en Solicitud",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/solicitudes/{{solicitudId}}/calcular-precio",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "solicitudes", "{{solicitudId}}", "calcular-precio"]
+            },
+            "description": "**Al finalizar el traslado:**\n\nRegistra el cálculo de tiempo real y costo real en la solicitud.\n\n**Incluye:**\n- ✅ Distancia real recorrida\n- ✅ Tiempo real de traslado (suma de todos los tramos)\n- ✅ Costo por distancia\n- ✅ Costo por peso y volumen\n- ✅ **Costo por estadía en depósitos** (diferencia entre fechas reales de entrada/salida)\n- ✅ Costo total final\n\n**Cálculo de estadía:**\n- Se calcula por la diferencia entre:\n  - Fecha de llegada real al depósito (fin de tramo anterior)\n  - Fecha de salida real del depósito (inicio de tramo siguiente)\n- Se multiplica por tarifa de estadía por hora/día"
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Gestión de Depósitos (OPERADOR/ADMIN)",
+      "description": "RF9: Registrar y actualizar depósitos",
+      "item": [
+        {
+          "name": "10.1 Listar Depósitos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var response = pm.response.json();",
+                  "  if (Array.isArray(response) && response.length > 0) {",
+                  "    var primerDeposito = response[0];",
+                  "    if (primerDeposito.id) {",
+                  "      pm.collectionVariables.set('depositoId', primerDeposito.id);",
+                  "      console.log('✅ Primer depósito ID: ' + primerDeposito.id);",
+                  "    }",
+                  "    console.log('📊 Total de depósitos: ' + response.length);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/depositos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "depositos"]
+            },
+            "description": "Lista todos los depósitos/almacenes del sistema con:\n- Nombre y dirección\n- Coordenadas (latitud, longitud)\n- Capacidad\n- Tarifa de estadía\n- Estado activo/inactivo"
+          }
+        },
+        {
+          "name": "10.2 Ver Detalle de Depósito",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/depositos/{{depositoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "depositos", "{{depositoId}}"]
+            },
+            "description": "Obtiene los detalles completos de un depósito específico."
+          }
+        },
+        {
+          "name": "10.3 Crear Depósito",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Depósito Central\",\n  \"direccion\": \"Av. Corrientes 1500, CABA, Argentina\",\n  \"latitud\": -34.603722,\n  \"longitud\": -58.381592,\n  \"capacidad\": 1000,\n  \"tarifaEstadia\": 100.0,\n  \"activo\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/depositos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "depositos"]
+            },
+            "description": "Registra un nuevo depósito en el sistema con:\n- Nombre identificatorio\n- Dirección física\n- Coordenadas GPS (latitud, longitud)\n- Capacidad de almacenamiento\n- Tarifa de estadía (por día/hora)\n- Estado activo"
+          }
+        },
+        {
+          "name": "10.4 Actualizar Depósito",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Depósito Central Actualizado\",\n  \"direccion\": \"Av. Corrientes 1500, CABA, Argentina\",\n  \"latitud\": -34.603722,\n  \"longitud\": -58.381592,\n  \"capacidad\": 1500,\n  \"tarifaEstadia\": 120.0,\n  \"activo\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/depositos/{{depositoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "depositos", "{{depositoId}}"]
+            },
+            "description": "Actualiza la información de un depósito existente:\n- Nombre\n- Dirección\n- Coordenadas\n- Capacidad\n- Tarifa de estadía\n- Estado activo/inactivo"
+          }
+        },
+        {
+          "name": "10.5 Obtener Coordenadas de Depósito",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/depositos/{{depositoId}}/coordenadas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "depositos", "{{depositoId}}", "coordenadas"]
+            },
+            "description": "Obtiene las coordenadas GPS de un depósito para cálculos de rutas.\n\nRetorna:\n- depositoId\n- nombre\n- latitud\n- longitud"
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Gestión de Tarifas (OPERADOR/ADMIN)",
+      "description": "RF9: Registrar y actualizar tarifas",
+      "item": [
+        {
+          "name": "11.1 Listar Tarifas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var response = pm.response.json();",
+                  "  if (Array.isArray(response) && response.length > 0) {",
+                  "    var primeraTarifa = response[0];",
+                  "    if (primeraTarifa.id) {",
+                  "      pm.collectionVariables.set('tarifaId', primeraTarifa.id);",
+                  "      console.log('✅ Primera tarifa ID: ' + primeraTarifa.id);",
+                  "    }",
+                  "    console.log('📊 Total de tarifas: ' + response.length);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tarifas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tarifas"]
+            },
+            "description": "Lista todas las tarifas configuradas en el sistema con sus rangos de peso y volumen."
+          }
+        },
+        {
+          "name": "11.2 Ver Detalle de Tarifa",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tarifas/{{tarifaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tarifas", "{{tarifaId}}"]
+            },
+            "description": "Obtiene los detalles de una tarifa específica incluyendo todos sus rangos."
+          }
+        },
+        {
+          "name": "11.3 Crear Tarifa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Tarifa Estándar\",\n  \"descripcion\": \"Tarifa para contenedores estándar\",\n  \"costoBase\": 500.0,\n  \"costoPorKm\": 10.0,\n  \"activa\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tarifas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tarifas"]
+            },
+            "description": "Crea una nueva tarifa base con:\n- Nombre identificatorio\n- Descripción\n- Costo base fijo\n- Costo por kilómetro\n- Estado activo/inactivo"
+          }
+        },
+        {
+          "name": "11.4 Actualizar Tarifa",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Tarifa Estándar Actualizada\",\n  \"descripcion\": \"Tarifa para contenedores estándar - Actualizada 2025\",\n  \"costoBase\": 600.0,\n  \"costoPorKm\": 12.0,\n  \"activa\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tarifas/{{tarifaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tarifas", "{{tarifaId}}"]
+            },
+            "description": "Actualiza una tarifa existente."
+          }
+        },
+        {
+          "name": "11.5 Agregar Rango a Tarifa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pesoMin\": 0.0,\n  \"pesoMax\": 1000.0,\n  \"volumenMin\": 0.0,\n  \"volumenMax\": 10.0,\n  \"multiplicador\": 1.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tarifas/{{tarifaId}}/rango",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tarifas", "{{tarifaId}}", "rango"]
+            },
+            "description": "Agrega un rango de peso y volumen a una tarifa.\n\nCada rango define:\n- Peso mínimo y máximo (kg)\n- Volumen mínimo y máximo (m³)\n- Multiplicador de costo (1.0 = sin cambio, 1.5 = +50%, etc.)\n\nEl sistema usa estos rangos para calcular costos según el contenedor."
+          }
+        },
+        {
+          "name": "11.6 Actualizar Rango de Tarifa",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pesoMin\": 0.0,\n  \"pesoMax\": 1500.0,\n  \"volumenMin\": 0.0,\n  \"volumenMax\": 15.0,\n  \"multiplicador\": 1.2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tarifas/{{tarifaId}}/rango/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tarifas", "{{tarifaId}}", "rango", "1"]
+            },
+            "description": "Actualiza un rango existente de una tarifa."
+          }
+        }
+      ]
+    }
+  ]
+}

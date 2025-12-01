@@ -1,0 +1,53 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: ms-rutas-transportistas
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak:8080/realms/tpi-backend
+          jwk-set-uri: http://keycloak:8080/realms/tpi-backend/protocol/openid-connect/certs
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: example
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format-sql: true
+    hibernate:
+      ddl-auto: update
+
+springdoc:
+  api-docs.enabled: true
+  swagger-ui.path: /swagger-ui.html
+
+logging:
+  level:
+    com.backend.tpi.ms_rutas_transportistas: INFO
+    org.springframework.web: WARN
+    org.hibernate: WARN
+  file:
+    name: logs/ms-rutas-transportistas.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30
+      total-size-cap: 1GB
+
+app:
+  solicitudes:
+    base-url: http://ms-solicitudes:8083
+  calculos:
+    base-url: http://ms-gestion-calculos:8081
+  osrm:
+    base-url: http://osrm:5000  # Use local OSRM instance in Docker
+  rutas:
+    estadia-deposito-horas: 24.0  # Tiempo estimado de estadía en depósitos (en horas)
+

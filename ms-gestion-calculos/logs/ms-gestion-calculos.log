@@ -1,0 +1,2 @@
+2025-11-22T00:00:02.870Z  WARN 164 --- [ms-gestion-calculos] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1m34s206ms734µs253ns).
+2025-11-22T00:13:29.363Z  WARN 164 --- [ms-gestion-calculos] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=13m26s931ms700µs30ns).

@@ -1,0 +1,166 @@
+{
+  "realm": "tpi-backend",
+  "enabled": true,
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": true,
+  "accessTokenLifespan": 300,
+  "accessTokenLifespanForImplicitFlow": 900,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "offlineSessionIdleTimeout": 2592000,
+  "offlineSessionMaxLifespanEnabled": false,
+  "accessCodeLifespan": 60,
+  "accessCodeLifespanUserAction": 300,
+  "accessCodeLifespanLogin": 1800,
+  "clients": [
+    {
+      "clientId": "postman-test",
+      "rootUrl": "http://localhost:8083",
+      "publicClient": false,
+      "secret": "secret-postman-123",
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": true,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"]
+    }
+  ],
+  "users": [
+    {
+      "username": "tester",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "tester@example.com",
+      "firstName": "Tester",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["CLIENTE", "OPERADOR", "TRANSPORTISTA", "ADMIN"]
+    },
+    {
+      "username": "cliente1",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "cliente1@example.com",
+      "firstName": "Cliente",
+      "lastName": "Uno",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["CLIENTE"]
+    },
+    
+    {
+      "username": "transportista1",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "transportista1@example.com",
+      "firstName": "Transportista",
+      "lastName": "Uno",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["TRANSPORTISTA"]
+    },
+    {
+      "username": "operador1",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "operador1@example.com",
+      "firstName": "Operador",
+      "lastName": "Uno",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["OPERADOR"]
+    },
+    {
+      "username": "carlos.ramirez",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "carlos.ramirez@transporte.com",
+      "firstName": "Carlos",
+      "lastName": "Ramírez",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["TRANSPORTISTA"]
+    },
+    {
+      "username": "laura.fernandez",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "laura.fernandez@logistica.com",
+      "firstName": "Laura",
+      "lastName": "Fernández",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["TRANSPORTISTA"]
+    },
+    {
+      "username": "diego.martinez",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "diego.martinez@fleteargentino.com",
+      "firstName": "Diego",
+      "lastName": "Martínez",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["TRANSPORTISTA"]
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "CLIENTE",
+        "description": "Cliente que crea solicitudes."
+      },
+      {
+        "name": "TRANSPORTISTA",
+        "description": "Transportista que realiza entregas."
+      },
+      {
+        "name": "OPERADOR",
+        "description": "Operador interno del sistema."
+      },
+      {
+        "name": "ADMIN",
+        "description": "Administrador del sistema con acceso completo."
+      }
+    ]
+  }
+}
